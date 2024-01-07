@@ -1,9 +1,9 @@
 import React from 'react';
 
 export type PropsOf<C extends keyof JSX.IntrinsicElements | React.JSXElementConstructor<unknown>> =
-  JSX.LibraryManagedAttributes<C, React.ComponentPropsWithRef<C>>;
+  JSX.LibraryManagedAttributes<C, React.ComponentPropsWithoutRef<C>>;
 
-export type AsProp<C extends React.ElementType> = {
+type AsProp<C extends React.ElementType> = {
   /**
    * An override of the default HTML tag.
    * Can also be another React component.
@@ -18,3 +18,29 @@ export type AsProp<C extends React.ElementType> = {
  */
 export type ExtendableProps<ExtendedProps = {}, OverrideProps = {}> = OverrideProps &
   Omit<ExtendedProps, keyof OverrideProps>;
+
+/**
+ * Allows for inheriting the props from the specified element type so that
+ * props like children, className & style work, as well as element-specific
+ * attributes like aria roles. The component (`C`) must be passed in.
+ */
+export type InheritableElementProps<C extends React.ElementType, Props = {}> = ExtendableProps<
+  PropsOf<C>,
+  Props
+>;
+
+/**
+ * A more sophisticated version of `InheritableElementProps` where
+ * the passed in `as` prop will determine which props can be included
+ */
+export type PolymorphicComponentProps<
+  C extends React.ElementType,
+  Props = {}
+> = InheritableElementProps<C, Props & AsProp<C>>;
+
+export type PolymorphicRef<C extends React.ElementType> = React.ComponentPropsWithRef<C>['ref'];
+
+export type PolymorphicComponentPropsWithRef<
+  C extends React.ElementType,
+  Props = {}
+> = PolymorphicComponentProps<C, Props> & { ref?: PolymorphicRef<C> };
